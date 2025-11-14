@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensaje = "⚠️ Todos los campos son obligatorios.";
     } else {
         try {
-            // 1️⃣ Crear el proyecto
+            // 1 Crear el proyecto
             $query = $conexion->prepare("
                 INSERT INTO proyectos (nombre, descripcion, fecha_limite, id_usuario) 
                 VALUES (:nombre, :descripcion, :fecha_limite, :id_usuario)
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $id_proyecto = $conexion->lastInsertId();
 
-            // 2️⃣ Agregar miembros (correos)
+            // 2 Agregar miembros (correos)
             if (!empty($_POST['miembros'])) {
                 $miembros = array_filter(array_map('trim', $_POST['miembros']));
 
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="date" name="fecha_limite" class="form-control" required>
                     </div>
 
-                    <!-- 👥 Agregar miembros -->
+                    <!--  Agregar miembros -->
                     <div class="mb-3">
                         <label class="form-label">Miembros del proyecto (por correo):</label>
                         <div id="miembrosContainer">
