@@ -108,5 +108,18 @@ $tareas = $queryTareas->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endif; ?>
 </div>
+<style>
+body { 
+    background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8)),
+    url("/app/assets/img/bg-shapes.png");
+    background-size: cover;
+    background-repeat: repeat;
+    min-height: 100vh;
+}
+:root {
+    --bs-body-font-family: "Roboto", sans-serif;
+}
+</style>
 
 <?php include("../includes/footer.php"); ?>

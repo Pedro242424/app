@@ -37,11 +37,12 @@ $proyectos = $query_proyectos->fetchAll(PDO::FETCH_ASSOC);
 include("../includes/header.php");
 ?>
 
-<div class="container-fluid mt-5" style="background-color: #f0f2f5; min-height: 100vh;">
+<div class="container-fluid mt-5"
+>
     <!-- Saludo -->
     <div class="text-center mb-4">
-        <h2 class="fw-bold text-primary">Hola <?= htmlspecialchars($correo_usuario); ?>!</h2>
-        <p class="text-muted">Este es tu panel de control. Revisa tus tareas y proyectos activos.</p>
+        <h2 class="fw-bold text-black">¡Hola <?= htmlspecialchars($correo_usuario); ?>!</h2>
+        <p class="text-muted fs-5 fw-bold">Este es tu panel de control. Revisa tus tareas y proyectos activos.</p>
     </div>
 
     <!-- Tareas pendientes -->
@@ -54,7 +55,7 @@ include("../includes/header.php");
                         <h6 class="fw-bold"><?= htmlspecialchars($t['titulo']); ?></h6>
                         <p class="text-muted mb-1"><?= nl2br(htmlspecialchars($t['descripcion'])); ?></p>
                         <small class="text-secondary">Fecha límite: <?= htmlspecialchars($t['fecha_limite']); ?></small>
-                        <a href="ver_tarea.php?id=<?= $t['id']; ?>" class="btn btn-sm btn-primary w-100 mt-2">
+                        <a href="ver_tarea.php?id=<?= $t['id']; ?>" class="btn btn-sm btn-morado" w-100 mt-2>
                             <i class="bi bi-eye"></i> Ver tarea
                         </a>
                     </div>
@@ -90,6 +91,15 @@ include("../includes/header.php");
 
 <!-- Estilos personalizados -->
 <style>
+
+body { 
+background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8)),
+        url("/app/assets/img/bg-shapes.png");
+        background-size: cover;
+        background-repeat: repeat;
+        min-height: 100vh;
+}
 .card-hover {
     border-radius: 1rem;
     transition: transform 0.3s, box-shadow 0.3s;
@@ -98,7 +108,23 @@ include("../includes/header.php");
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
+:root {
+    --bs-body-font-family: "Roboto", sans-serif;
+}
+
+.btn-morado {
+    background-color: #513174;
+    border-color: #513174;
+    color: white; /* texto blanco */
+}
+
+.btn-morado:hover {
+    background-color: #3f255b; /* un poco más oscuro para el hover */
+    border-color: #3f255b;
+    color: white;
+}
 </style>
+
 
 <?php include("../includes/footer.php"); ?>
 
