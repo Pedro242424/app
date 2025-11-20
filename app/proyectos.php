@@ -38,7 +38,7 @@ include("../includes/header.php");
                     <h5 class="card-title"><?= htmlspecialchars($p['nombre']); ?></h5>
                     <p class="card-text flex-grow-1"><?= nl2br(htmlspecialchars($p['descripcion'])); ?></p>
                     <p class="mb-3 fecha-limite">Fecha límite: <?= htmlspecialchars($p['fecha_limite']); ?></p>
-                    <a href="proyecto_detalle.php?id=<?= $p['id']; ?>" class="btn btn-primary w-100 mt-auto">
+                    <a href="proyecto_detalle.php?id=<?= $p['id']; ?>" class="btn btn-morado w-100 mt-auto">
                         <i class="bi bi-eye"></i> Ver tareas
                     </a>
                 </div>
@@ -62,6 +62,27 @@ include("../includes/header.php");
 .fecha-limite {
     font-weight: bold;
     color: #0d6efd;
+}
+.btn-morado {
+    background-color: #513174;
+    border-color: #513174;
+    color: white; /* texto blanco */
+}
+.btn-morado:hover {
+    background-color: #3f255b; /* un poco más oscuro para el hover */
+    border-color: #3f255b;
+    color: white;
+}
+body { 
+    background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.8)),
+    url("/app/assets/img/bg-shapes.png");
+    background-size: cover;
+    background-repeat: repeat;
+    min-height: 100vh;
+}
+:root {
+    --bs-body-font-family: "Roboto", sans-serif;
 }
 </style>
 
