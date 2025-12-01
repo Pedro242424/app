@@ -572,7 +572,7 @@ function calcularPorcentaje($total, $completadas) {
                     $clase_urgencia = ($dias_restantes <= 3) ? 'danger' : 'warning';
                 ?>
                     <!-- Tarjeta de proyecto (al hacer clic redirige a las tareas) -->
-                    <div class="project-card" onclick="window.location.href='proyecto_detalle.php?id=<?= $p['id'] ?>'">
+                    <div class="project-card" onclick="window.location.href='tareas.php?id=<?= $p['id'] ?>'">
                         
                         <!-- Título del proyecto -->
                         <div class="project-title">
