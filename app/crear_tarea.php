@@ -1,21 +1,37 @@
 <?php
+/**
+ * CREAR TAREA - MODAL
+ * Este archivo maneja la creación de tareas a través de un modal cargado por AJAX.
+ * Solo procesa peticiones POST (crear tarea) y GET con id_proyecto (mostrar formulario).
+ */
+
 session_start();
 include("../config/bd.php");
 
+// ===============================================
+// VERIFICACIÓN DE SEGURIDAD
+// ===============================================
 if (!isset($_SESSION['usuario'])) {
-    header("Location: login.php");
+    echo json_encode(['error' => 'No autorizado']);
     exit;
 }
 
+// Obtener el ID del proyecto desde la URL
 $id_proyecto = $_GET['id_proyecto'] ?? null;
 $mensaje = "";
 
+// Si no hay ID de proyecto, redirigir a proyectos
 if (!$id_proyecto) {
     header("Location: proyectos.php");
     exit;
 }
 
+// ===============================================
+// PROCESAR FORMULARIO (CREAR TAREA)
+// ===============================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // Obtener y limpiar datos del formulario
     $titulo = trim($_POST['titulo'] ?? '');
     $descripcion = trim($_POST['descripcion'] ?? '');
     $fecha_limite = $_POST['fecha_limite'] ?? '';
@@ -23,10 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_asignado = $_POST['id_asignado'] ?? null;
     $id_proyecto = $_POST['id_proyecto'] ?? null;
 
+    // Validar campos obligatorios
     if (empty($titulo) || empty($descripcion) || empty($fecha_limite)) {
-        $mensaje = " Todos los campos son obligatorios.";
+        $mensaje = "Todos los campos son obligatorios.";
     } else {
         try {
+            // Insertar la tarea en la base de datos
             $sql = $conexion->prepare("
                 INSERT INTO tareas (titulo, descripcion, fecha_limite, prioridad, id_proyecto, estado, id_asignado)
                 VALUES (:titulo, :descripcion, :fecha_limite, :prioridad, :id_proyecto, 'pendiente', :id_asignado)
@@ -39,16 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql->bindParam(":id_asignado", $id_asignado);
             $sql->execute();
 
-            // NO redirigir, dejar que JavaScript maneje el cierre del modal
-            // header("Location: proyecto_detalle.php?id=" . urlencode($id_proyecto));
-            // exit;
+            // No redirigir aquí, JavaScript manejará el cierre del modal
+            
         } catch (PDOException $e) {
-            $mensaje = " Error al guardar la tarea: " . $e->getMessage();
+            $mensaje = "Error al guardar la tarea: " . $e->getMessage();
         }
     }
 }
 
-// Obtener miembros del proyecto
+// ===============================================
+// OBTENER MIEMBROS DEL PROYECTO
+// ===============================================
 $queryMiembros = $conexion->prepare("
     SELECT u.id, u.nombre, u.correo
     FROM miembros m
@@ -70,6 +89,9 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     
     <style>
+        /* ============================================
+           ESTILOS GENERALES
+           ============================================ */
         body {
             background: white;
             font-family: 'Segoe UI', sans-serif;
@@ -82,6 +104,9 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             background: white;
         }
 
+        /* ============================================
+           ENCABEZADO DEL MODAL
+           ============================================ */
         .modal-header-custom {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 30px;
@@ -101,10 +126,14 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             font-size: 15px;
         }
 
+        /* ============================================
+           CUERPO DEL MODAL
+           ============================================ */
         .modal-body-custom {
             padding: 30px;
         }
 
+        /* Etiquetas de los campos del formulario */
         .form-label {
             color: #333;
             font-weight: 600;
@@ -120,6 +149,7 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             font-size: 16px;
         }
 
+        /* Campos de entrada modernos */
         .form-control-modern {
             border-radius: 12px;
             padding: 12px 16px;
@@ -138,6 +168,14 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             color: #adb5bd;
         }
 
+        /* Estilo especial para select */
+        select.form-control-modern {
+            cursor: pointer;
+        }
+
+        /* ============================================
+           BOTONES
+           ============================================ */
         .btn-crear {
             width: 100%;
             padding: 14px;
@@ -183,28 +221,32 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             color: #667eea;
         }
 
+        /* ============================================
+           ALERTAS
+           ============================================ */
         .alert {
             border-radius: 12px;
             border: none;
             margin-bottom: 20px;
-        }
-
-        select.form-control-modern {
-            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
 <div class="modal-container">
-    <!-- Header -->
+    <!-- ============================================
+         ENCABEZADO
+         ============================================ -->
     <div class="modal-header-custom">
-        <h2> Nueva Tarea</h2>
+        <h2><i class="bi bi-clipboard-plus"></i> Nueva Tarea</h2>
         <p>Organiza el trabajo del proyecto</p>
     </div>
 
-    <!-- Body -->
+    <!-- ============================================
+         FORMULARIO
+         ============================================ -->
     <div class="modal-body-custom">
+        <!-- Mostrar mensaje de error si existe -->
         <?php if ($mensaje): ?>
             <div class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill"></i>
@@ -213,7 +255,7 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <form method="post">
-            <!-- Título -->
+            <!-- CAMPO: Título de la tarea -->
             <div class="mb-3">
                 <label class="form-label">
                     <i class="bi bi-pencil-square"></i>
@@ -229,10 +271,10 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                 >
             </div>
 
-            <!-- Descripción -->
+            <!-- CAMPO: Descripción -->
             <div class="mb-3">
                 <label class="form-label">
-                    <i class="bi bi-text-paragraph"></i>
+                    <i class="bi bi-card-text"></i>
                     Descripción
                 </label>
                 <textarea 
@@ -244,10 +286,10 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                 ></textarea>
             </div>
 
-            <!-- Fecha límite -->
+            <!-- CAMPO: Fecha límite -->
             <div class="mb-3">
                 <label class="form-label">
-                    <i class="bi bi-calendar-event"></i>
+                    <i class="bi bi-calendar-check"></i>
                     Fecha límite
                 </label>
                 <input 
@@ -258,20 +300,20 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                 >
             </div>
 
-            <!-- Prioridad -->
+            <!-- CAMPO: Prioridad -->
             <div class="mb-3">
                 <label class="form-label">
                     <i class="bi bi-flag-fill"></i>
                     Prioridad
                 </label>
                 <select name="prioridad" class="form-control form-control-modern">
-                    <option value="baja">🟢 Baja</option>
-                    <option value="media" selected>🟡 Media</option>
-                    <option value="alta">🔴 Alta</option>
+                    <option value="baja">Baja</option>
+                    <option value="media" selected>Media</option>
+                    <option value="alta">Alta</option>
                 </select>
             </div>
 
-            <!-- Asignar a -->
+            <!-- CAMPO: Asignar a miembro -->
             <div class="mb-4">
                 <label class="form-label">
                     <i class="bi bi-person-fill"></i>
@@ -291,9 +333,10 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                 </select>
             </div>
 
+            <!-- Campo oculto con el ID del proyecto -->
             <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($id_proyecto); ?>">
 
-            <!-- Botones -->
+            <!-- BOTONES DE ACCIÓN -->
             <button type="submit" class="btn-crear">
                 <i class="bi bi-check-circle-fill"></i>
                 Crear tarea
@@ -310,7 +353,10 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Enviar mensaje al padre cuando se crea la tarea correctamente
+/**
+ * COMUNICACIÓN CON LA VENTANA PADRE
+ * Cuando se crea la tarea exitosamente, enviar mensaje al padre para cerrar el modal
+ */
 <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($mensaje)): ?>
     window.parent.postMessage('tarea_creada', '*');
 <?php endif; ?>
