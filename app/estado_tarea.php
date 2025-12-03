@@ -1,7 +1,8 @@
 <?php
 /**
- * ACTUALIZAR TAREA - Cambiar estado
- * API para actualizar el estado de una tarea (pendiente/completada)
+ * ACTUALIZAR ESTADO DE TAREA - Para proyecto_detalle.php
+ * Permite cambiar el estado de cualquier tarea del proyecto
+ * (sin restricción de que sea el usuario asignado)
  */
 
 session_start();
@@ -13,11 +14,13 @@ if (!isset($_SESSION['usuario'])) {
     exit;
 }
 
-$id_usuario = $_SESSION['id_usuario'];
-
 // Obtener datos del POST
 $id_tarea = $_POST['id'] ?? null;
 $nuevo_estado = $_POST['estado'] ?? null;
+
+// Log para debug
+error_log("ID Tarea: " . $id_tarea);
+error_log("Nuevo Estado: " . $nuevo_estado);
 
 // Validar datos
 if (!$id_tarea || !$nuevo_estado) {
@@ -25,28 +28,15 @@ if (!$id_tarea || !$nuevo_estado) {
     exit;
 }
 
-// Validar que el estado sea válido
-if (!in_array($nuevo_estado, ['pendiente', 'completada'])) {
-    echo json_encode(['success' => false, 'mensaje' => 'Estado inválido']);
+// Validar que el estado sea válido (3 estados)
+$estados_validos = ['pendiente', 'en_proceso', 'completada'];
+if (!in_array($nuevo_estado, $estados_validos)) {
+    echo json_encode(['success' => false, 'mensaje' => 'Estado inválido: ' . $nuevo_estado]);
     exit;
 }
 
 try {
-    // Verificar que la tarea pertenezca al usuario
-    $query_verificar = $conexion->prepare("
-        SELECT id FROM tareas 
-        WHERE id = :id AND id_asignado = :id_usuario
-    ");
-    $query_verificar->bindParam(":id", $id_tarea);
-    $query_verificar->bindParam(":id_usuario", $id_usuario);
-    $query_verificar->execute();
-    
-    if ($query_verificar->rowCount() === 0) {
-        echo json_encode(['success' => false, 'mensaje' => 'Tarea no encontrada o no autorizada']);
-        exit;
-    }
-    
-    // Actualizar el estado de la tarea
+    // Actualizar el estado de la tarea (SIN verificar usuario)
     $query_actualizar = $conexion->prepare("
         UPDATE tareas 
         SET estado = :estado 
@@ -54,7 +44,9 @@ try {
     ");
     $query_actualizar->bindParam(":estado", $nuevo_estado);
     $query_actualizar->bindParam(":id", $id_tarea);
-    $query_actualizar->execute();
+    $resultado = $query_actualizar->execute();
+    
+    error_log("Resultado actualización: " . ($resultado ? 'true' : 'false'));
     
     echo json_encode([
         'success' => true, 
@@ -63,6 +55,7 @@ try {
     ]);
     
 } catch (PDOException $e) {
+    error_log("Error PDO: " . $e->getMessage());
     echo json_encode(['success' => false, 'mensaje' => 'Error: ' . $e->getMessage()]);
 }
 ?>

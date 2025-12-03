@@ -147,9 +147,7 @@ function calcularPorcentaje($total, $completadas) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
-        /* ============================================= */
-        /* ESTILOS GENERALES */
-        /* ============================================= */
+        /* Estilos generales */
         body {
             background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
             min-height: 100vh;
@@ -162,9 +160,7 @@ function calcularPorcentaje($total, $completadas) {
             padding: 30px 20px;
         }
 
-        /* ============================================= */
-        /* HEADER DE BIENVENIDA */
-        /* ============================================= */
+        /* Header de bienvenida */
         .welcome-header {
             background: white;
             border-radius: 20px;
@@ -174,7 +170,7 @@ function calcularPorcentaje($total, $completadas) {
         }
 
         .welcome-header h2 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             color: #333;
             margin: 0 0 5px 0;
@@ -184,9 +180,7 @@ function calcularPorcentaje($total, $completadas) {
             color: #6c757d;
             font-size: 15px;
         }
-        /* ============================================= */
-        /* CARD TAREAS*/
-        /* ============================================= */
+        /* Card tareas*/
         .tasks-highlight {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 20px;
@@ -228,9 +222,7 @@ function calcularPorcentaje($total, $completadas) {
         }
 
 
-        /* ============================================= */
-        /* HEADER DE SECCIÓN */
-        /* ============================================= */
+        /* Header de seccion */
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -254,31 +246,25 @@ function calcularPorcentaje($total, $completadas) {
 
         /* Botón para ver todos los proyectos */
         .btn-ver-todos {
-            background: rgba(0, 0, 0, 0.08);
-            color: #333;
-            border: 2px solid rgba(2, 2, 2, 0.14);
-            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border-radius: 12px;
+            padding: 12px 24px;
+            border: none;
             font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            backdrop-filter: blur(10px);
-            display: inline-flex;
+            transition: all 0.3s;
+            display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            cursor: pointer;
         }
 
         .btn-ver-todos:hover {
-            background: rgba(255,255,255,0.3);
-            border-color: rgba(255,255,255,0.5);
-            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
-        /* ============================================= */
-        /* GRID DE PROYECTOS */
-        /* ============================================= */
+        /* Grid de proyectos */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -286,9 +272,7 @@ function calcularPorcentaje($total, $completadas) {
             margin-bottom: 40px;
         }
 
-        /* ============================================= */
-        /* TARJETA DE PROYECTO */
-        /* ============================================= */
+        /* Tarjeta de proyecto */
         .project-card {
             background: white;
             border-radius: 20px;
@@ -338,7 +322,7 @@ function calcularPorcentaje($total, $completadas) {
             color: #999;
         }
 
-        /* Fecha límite con colores según urgencia */
+        /* Fecha límite  */
         .project-card .project-deadline {
             display: flex;
             align-items: center;
@@ -357,15 +341,42 @@ function calcularPorcentaje($total, $completadas) {
             color: #ff9800;
         }
 
-        /* Color rojo: 3 días o menos */
+        /* Color rojo: 1-3 días restantes (urgente) */
         .project-card .project-deadline.danger {
             background: #ffebee;
             color: #dc3545;
         }
 
-        /* ============================================= */
-        /* BARRA DE PROGRESO */
-        /* ============================================= */
+        /* Color rojo intenso: VENCE HOY */
+        .project-card .project-deadline.today {
+            background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
+            color: white;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+        }
+
+        /* Color gris: YA VENCIÓ */
+        .project-card .project-deadline.expired {
+            background: #f5f5f5;
+            color: #757575;
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        /* Animación de pulso para "Vence HOY" */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(244, 67, 54, 0.6);
+            }
+        }
+
+        /* Barra de progeso */
         .progress-container {
             margin-top: 15px;
         }
@@ -417,9 +428,7 @@ function calcularPorcentaje($total, $completadas) {
             gap: 4px;
         }
 
-        /* ============================================= */
-        /* ESTADO VACÍO */
-        /* ============================================= */
+        /* Estado vacio */
         .empty-state {
             background: white;
             border-radius: 20px;
@@ -467,9 +476,7 @@ function calcularPorcentaje($total, $completadas) {
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
-        /* ============================================= */
-        /* ANIMACIONES */
-        /* ============================================= */
+        /* Animaciones */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -490,9 +497,7 @@ function calcularPorcentaje($total, $completadas) {
             }
         }
 
-        /* ============================================= */
-        /* RESPONSIVE DESIGN */
-        /* ============================================= */
+        /* Responsive design */
         @media (max-width: 768px) {
             .projects-grid {
                 grid-template-columns: 1fr;
@@ -511,9 +516,7 @@ function calcularPorcentaje($total, $completadas) {
 
     <div class="dashboard-container">
         
-        <!-- ============================================= -->
-        <!-- HEADER DE BIENVENIDA -->
-        <!-- ============================================= -->
+        <!-- Header bienvenida-->
         <div class="welcome-header">
             <h2>
                 Hola, <?= htmlspecialchars($nombre_usuario); ?>
@@ -523,9 +526,7 @@ function calcularPorcentaje($total, $completadas) {
             </p>
         </div>
 
-        <!-- ============================================= -->
-        <!-- CARD TAREAS PENDIENTES -->
-        <!-- ============================================= -->
+        <!-- Card tareas pendientes -->
         <div class="tasks-highlight">
             <div class="left">
                 <h3><?= $total_pendientes ?></h3>
@@ -539,9 +540,7 @@ function calcularPorcentaje($total, $completadas) {
             </div>
         </div>
 
-        <!-- ============================================= -->
-        <!-- SECCIÓN: PROYECTOS PRÓXIMOS A VENCER -->
-        <!-- ============================================= -->
+        <!-- SECCIÓN: Proyectos próximos a vencer -->
         <div class="section-header">
             <h4>
                 <i class="bi bi-clock-history"></i>
@@ -556,78 +555,95 @@ function calcularPorcentaje($total, $completadas) {
         <?php if (!empty($proyectos)): ?>
             <!-- Si hay proyectos, mostrar el grid -->
             <div class="projects-grid">
-                <?php foreach ($proyectos as $p): 
-                    // Calcular porcentaje de progreso
-                    $porcentaje = calcularPorcentaje($p['total_tareas'], $p['tareas_completadas']);
-                    
-                    // Calcular días restantes hasta la fecha límite
-                    $fecha = new DateTime($p['fecha_limite']);
-                    $hoy = new DateTime();
-                    $diff = $hoy->diff($fecha);
-                    $dias_restantes = $diff->days;
-                    
-                    // Determinar clase CSS según urgencia
-                    // 3 días o menos = danger (rojo)
-                    // Más de 3 días = warning (naranja)
-                    $clase_urgencia = ($dias_restantes <= 3) ? 'danger' : 'warning';
-                ?>
-                    <!-- Tarjeta de proyecto (al hacer clic redirige a las tareas) -->
-                    <div class="project-card" onclick="window.location.href='tareas.php?id=<?= $p['id'] ?>'">
-                        
-                        <!-- Título del proyecto -->
-                        <div class="project-title">
-                            <?= htmlspecialchars($p['nombre']); ?>
-                        </div>
-                        
-                        <!-- Miembros del proyecto -->
-                        <div class="project-members">
-                            <i class="bi bi-people" style="color: #667eea;"></i>
-                            <?php 
-                            $miembros = $miembros_por_proyecto[$p['id']] ?? [];
-                            
-                            if (!empty($miembros)) {
-                                // Mostrar nombre de cada miembro
-                                foreach ($miembros as $miembro) {
-                                    $primer_nombre = explode(' ', $miembro['nombre'])[0];
-                                    echo '<span class="member-tag">' . htmlspecialchars($primer_nombre) . '</span>';
-                                }
-                            } else {
-                                // Si no hay miembros
-                                echo '<span class="member-tag empty">Sin miembros</span>';
-                            }
-                            ?>
-                        </div>
-                        
-                        <!-- Fecha límite con indicador de urgencia -->
-                        <div class="project-deadline <?= $clase_urgencia ?>">
-                            <i class="bi bi-alarm"></i>
-                            Vence en <?= $dias_restantes ?> día<?= $dias_restantes != 1 ? 's' : '' ?>
-                        </div>
+            <?php foreach ($proyectos as $p): 
+    // Calcular porcentaje de progreso
+    $porcentaje = calcularPorcentaje($p['total_tareas'], $p['tareas_completadas']);
+    
+    // Calcular días restantes hasta la fecha límite
+    $fecha = new DateTime($p['fecha_limite']);
+    $hoy = new DateTime();
+    $hoy->setTime(0, 0, 0); // Resetear hora para comparar solo fechas
+    $fecha->setTime(0, 0, 0);
+    
+    $diff = $hoy->diff($fecha);
+    $dias_restantes = (int)$diff->format('%R%a'); // Positivo = futuro, Negativo = pasado
+    
+    // Determinar mensaje y clase CSS según estado
+    if ($dias_restantes < 0) {
+        // Ya venció
+        $dias_abs = abs($dias_restantes);
+        $mensaje_vencimiento = "Venció hace " . $dias_abs . " día" . ($dias_abs != 1 ? 's' : '');
+        $clase_urgencia = 'expired';
+        $icono = 'bi-x-circle';
+    } elseif ($dias_restantes == 0) {
+        // Vence HOY
+        $mensaje_vencimiento = "¡Vence HOY!";
+        $clase_urgencia = 'today';
+        $icono = 'bi-exclamation-triangle-fill';
+    } elseif ($dias_restantes <= 3) {
+        // Vence en 1-3 días (urgente)
+        $mensaje_vencimiento = "Vence en " . $dias_restantes . " día" . ($dias_restantes != 1 ? 's' : '');
+        $clase_urgencia = 'danger';
+        $icono = 'bi-alarm-fill';
+    } else {
+        // Vence en más de 3 días
+        $mensaje_vencimiento = "Vence en " . $dias_restantes . " día" . ($dias_restantes != 1 ? 's' : '');
+        $clase_urgencia = 'warning';
+        $icono = 'bi-alarm';
+    }
+?>
+    <!-- Tarjeta de proyecto -->
+    <div class="project-card" onclick="window.location.href='proyecto_detalle.php?id=<?= $p['id'] ?>'">
+        
+        <!-- Título del proyecto -->
+        <div class="project-title">
+            <?= htmlspecialchars($p['nombre']); ?>
+        </div>
+        
+        <!-- Miembros del proyecto -->
+        <div class="project-members">
+            <i class="bi bi-people" style="color: #667eea;"></i>
+            <?php 
+            $miembros = $miembros_por_proyecto[$p['id']] ?? [];
+            
+            if (!empty($miembros)) {
+                foreach ($miembros as $miembro) {
+                    $primer_nombre = explode(' ', $miembro['nombre'])[0];
+                    echo '<span class="member-tag">' . htmlspecialchars($primer_nombre) . '</span>';
+                }
+            } else {
+                echo '<span class="member-tag empty">Sin miembros</span>';
+            }
+            ?>
+        </div>
+        
+        <!-- Fecha límite con indicador de urgencia -->
+        <div class="project-deadline <?= $clase_urgencia ?>">
+            <i class="<?= $icono ?>"></i>
+            <?= $mensaje_vencimiento ?>
+        </div>
 
-                        <!-- Barra de progreso -->
-                        <div class="progress-container">
-                            <!-- Encabezado: etiqueta y porcentaje -->
-                            <div class="progress-info">
-                                <span class="label">
-                                    <i class="bi bi-graph-up"></i>
-                                    Progreso
-                                </span>
-                                <span class="percentage"><?= $porcentaje ?>%</span>
-                            </div>
-                            
-                            <!-- Barra visual -->
-                            <div class="progress">
-                                <div class="progress-bar" style="width: <?= $porcentaje ?>%"></div>
-                            </div>
-                            
-                            <!-- Contador de tareas -->
-                            <div class="task-count">
-                                <i class="bi bi-check2-circle"></i>
-                                <?= $p['tareas_completadas'] ?> de <?= $p['total_tareas'] ?> tareas completadas
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+        <!-- Barra de progreso -->
+        <div class="progress-container">
+            <div class="progress-info">
+                <span class="label">
+                    <i class="bi bi-graph-up"></i>
+                    Progreso
+                </span>
+                <span class="percentage"><?= $porcentaje ?>%</span>
+            </div>
+            
+            <div class="progress">
+                <div class="progress-bar" style="width: <?= $porcentaje ?>%"></div>
+            </div>
+            
+            <div class="task-count">
+                <i class="bi bi-check2-circle"></i>
+                <?= $p['tareas_completadas'] ?> de <?= $p['total_tareas'] ?> tareas completadas
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>
             </div>
         <?php else: ?>
             <!-- Si no hay proyectos próximos a vencer -->

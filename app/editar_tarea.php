@@ -7,11 +7,11 @@ if (!isset($_SESSION['usuario'])) {
     exit;
 }
 
-$id_proyecto = $_GET['id_proyecto'] ?? null;
+$id_tarea = $_GET['id'] ?? null;
 $mensaje = "";
 
-if (!$id_proyecto) {
-    header("Location: proyectos.php");
+if (!$id_tarea) {
+    echo "Tarea no encontrada";
     exit;
 }
 
@@ -21,38 +21,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $descripcion = trim($_POST['descripcion'] ?? '');
     $fecha_limite = $_POST['fecha_limite'] ?? '';
     $prioridad = $_POST['prioridad'] ?? 'media';
+    $estado = $_POST['estado'] ?? 'pendiente';
     $id_asignado = $_POST['id_asignado'] ?? null;
-    $id_proyecto = $_POST['id_proyecto'] ?? null;
 
     if (empty($titulo) || empty($descripcion) || empty($fecha_limite)) {
         $mensaje = "Todos los campos son obligatorios.";
     } else {
         try {
             $sql = $conexion->prepare("
-                INSERT INTO tareas (titulo, descripcion, fecha_limite, prioridad, id_proyecto, estado, id_asignado)
-                VALUES (:titulo, :descripcion, :fecha_limite, :prioridad, :id_proyecto, 'pendiente', :id_asignado)
+                UPDATE tareas 
+                SET titulo = :titulo,
+                    descripcion = :descripcion,
+                    fecha_limite = :fecha_limite,
+                    prioridad = :prioridad,
+                    estado = :estado,
+                    id_asignado = :id_asignado
+                WHERE id = :id
             ");
             $sql->bindParam(":titulo", $titulo);
             $sql->bindParam(":descripcion", $descripcion);
             $sql->bindParam(":fecha_limite", $fecha_limite);
             $sql->bindParam(":prioridad", $prioridad);
-            $sql->bindParam(":id_proyecto", $id_proyecto);
+            $sql->bindParam(":estado", $estado);
             $sql->bindParam(":id_asignado", $id_asignado);
+            $sql->bindParam(":id", $id_tarea);
             $sql->execute();
+            
+            // Enviar mensaje al padre
+            echo "<script>window.parent.postMessage('tarea_editada', '*');</script>";
+            exit;
+            
         } catch (PDOException $e) {
-            $mensaje = "Error al guardar la tarea: " . $e->getMessage();
+            $mensaje = "Error al actualizar: " . $e->getMessage();
         }
     }
 }
 
-// OBTENER MIEMBROS
+// Obtener datos de la tarea
+$query = $conexion->prepare("SELECT * FROM tareas WHERE id = :id");
+$query->bindParam(":id", $id_tarea);
+$query->execute();
+$tarea = $query->fetch(PDO::FETCH_ASSOC);
+
+// Obtener miembros del proyecto
 $queryMiembros = $conexion->prepare("
     SELECT u.id, u.nombre, u.correo
     FROM miembros m
     INNER JOIN usuarios u ON m.correo_miembro = u.correo
     WHERE m.id_proyecto = :id_proyecto
 ");
-$queryMiembros->bindParam(":id_proyecto", $id_proyecto);
+$queryMiembros->bindParam(":id_proyecto", $tarea['id_proyecto']);
 $queryMiembros->execute();
 $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -62,7 +80,7 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Tarea</title>
+    <title>Editar Tarea</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     
@@ -70,34 +88,19 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
         body {
             background: white;
             font-family: 'Segoe UI', sans-serif;
-            padding: 0;
-            margin: 0;
         }
 
-        .modal-container {
-            width: 100%;
-            background: white;
-        }
-
-        /* ENCABEZADO MEJORADO */
         .modal-header-custom {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 30px;
             text-align: center;
             color: white;
-            position: relative;
         }
 
         .modal-header-custom h2 {
             margin: 0;
             font-weight: 700;
             font-size: 28px;
-        }
-
-        .modal-header-custom p {
-            margin: 5px 0 0 0;
-            opacity: 0.95;
-            font-size: 15px;
         }
 
         .modal-body-custom {
@@ -116,14 +119,12 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
 
         .form-label i {
             color: #667eea;
-            font-size: 16px;
         }
 
         .form-control-modern {
             border-radius: 12px;
             padding: 12px 16px;
             border: 2px solid #e9ecef;
-            font-size: 15px;
             transition: all 0.3s;
         }
 
@@ -133,32 +134,18 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             outline: none;
         }
 
-        .form-control-modern::placeholder {
-            color: #adb5bd;
-        }
-
-        select.form-control-modern {
-            cursor: pointer;
-        }
-
-        /* BOTÓN CREAR - ESTILO UNIFICADO CON PROYECTOS */
-        .btn-crear {
+        .btn-guardar {
             width: 100%;
             padding: 14px;
             background: #667eea;
             color: white;
-            font-size: 16px;
             border: none;
             border-radius: 12px;
             font-weight: 600;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
-        .btn-crear:hover {
+        .btn-guardar:hover {
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
@@ -173,12 +160,6 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             background: white;
             font-weight: 600;
             color: #6c757d;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-decoration: none;
             cursor: pointer;
         }
 
@@ -187,20 +168,14 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             border-color: #667eea;
             color: #667eea;
         }
-
-        .alert {
-            border-radius: 12px;
-            border: none;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
 
 <div class="modal-container">
     <div class="modal-header-custom">
-        <h2><i class="bi bi-clipboard-plus"></i> Nueva Tarea</h2>
-        <p>Organiza el trabajo del proyecto</p>
+        <h2><i class="bi bi-pencil-square"></i> Editar Tarea</h2>
+        <p style="margin: 5px 0 0 0; opacity: 0.95;">Modifica los detalles de la tarea</p>
     </div>
 
     <div class="modal-body-custom">
@@ -215,15 +190,14 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
             <div class="mb-3">
                 <label class="form-label">
                     <i class="bi bi-pencil-square"></i>
-                    Título de la tarea
+                    Título
                 </label>
                 <input 
                     type="text" 
                     name="titulo" 
+                    value="<?= htmlspecialchars($tarea['titulo']); ?>"
                     required 
-                    maxlength="100" 
-                    class="form-control form-control-modern" 
-                    placeholder="Ej: Crear prototipo de alta fidelidad"
+                    class="form-control form-control-modern"
                 >
             </div>
 
@@ -236,9 +210,8 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                     name="descripcion" 
                     rows="4" 
                     required 
-                    class="form-control form-control-modern" 
-                    placeholder="Describe los detalles de la tarea..."
-                ></textarea>
+                    class="form-control form-control-modern"
+                ><?= htmlspecialchars($tarea['descripcion']); ?></textarea>
             </div>
 
             <div class="mb-3">
@@ -249,21 +222,37 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                 <input 
                     type="date" 
                     name="fecha_limite" 
+                    value="<?= $tarea['fecha_limite']; ?>"
                     required 
                     class="form-control form-control-modern"
                 >
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">
-                    <i class="bi bi-flag-fill"></i>
-                    Prioridad
-                </label>
-                <select name="prioridad" class="form-control form-control-modern">
-                    <option value="baja">Baja</option>
-                    <option value="media" selected>Media</option>
-                    <option value="alta">Alta</option>
-                </select>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-flag-fill"></i>
+                        Prioridad
+                    </label>
+                    <select name="prioridad" class="form-control form-control-modern">
+                        <option value="baja" <?= $tarea['prioridad'] == 'baja' ? 'selected' : '' ?>>Baja</option>
+                        <option value="media" <?= $tarea['prioridad'] == 'media' ? 'selected' : '' ?>>Media</option>
+                        <option value="alta" <?= $tarea['prioridad'] == 'alta' ? 'selected' : '' ?>>Alta</option>
+                        <option value="urgente" <?= $tarea['prioridad'] == 'urgente' ? 'selected' : '' ?>>Urgente</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-arrow-repeat"></i>
+                        Estado
+                    </label>
+                    <select name="estado" class="form-control form-control-modern">
+                        <option value="pendiente" <?= $tarea['estado'] == 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                        <option value="en_proceso" <?= $tarea['estado'] == 'en_proceso' ? 'selected' : '' ?>>En Proceso</option>
+                        <option value="completada" <?= $tarea['estado'] == 'completada' ? 'selected' : '' ?>>Completada</option>
+                    </select>
+                </div>
             </div>
 
             <div class="mb-4">
@@ -272,41 +261,26 @@ $miembros = $queryMiembros->fetchAll(PDO::FETCH_ASSOC);
                     Asignar a
                 </label>
                 <select name="id_asignado" class="form-control form-control-modern" required>
-                    <option value="">Selecciona un miembro del proyecto</option>
-                    <?php if (count($miembros) > 0): ?>
-                        <?php foreach ($miembros as $mi): ?>
-                            <option value="<?= htmlspecialchars($mi['id']) ?>">
-                                <?= htmlspecialchars($mi['nombre']) ?> (<?= htmlspecialchars($mi['correo']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <option disabled>No hay miembros registrados</option>
-                    <?php endif; ?>
+                    <?php foreach ($miembros as $m): ?>
+                        <option value="<?= $m['id'] ?>" <?= $tarea['id_asignado'] == $m['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($m['nombre']) ?> (<?= htmlspecialchars($m['correo']) ?>)
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
-            <input type="hidden" name="id_proyecto" value="<?= htmlspecialchars($id_proyecto); ?>">
-
-            <button type="submit" class="btn-crear">
+            <button type="submit" class="btn-guardar">
                 <i class="bi bi-check-circle-fill"></i>
-                Crear tarea
+                Guardar Cambios
             </button>
 
-            <button type="button" class="btn-cancelar" onclick="window.parent.postMessage('cerrar_modal', '*')">
+            <button type="button" class="btn-cancelar" onclick="window.parent.postMessage('cerrar_modal_editar', '*')">
                 <i class="bi bi-x-circle"></i>
                 Cancelar
             </button>
         </form>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($mensaje)): ?>
-    window.parent.postMessage('tarea_creada', '*');
-<?php endif; ?>
-</script>
 
 </body>
 </html>

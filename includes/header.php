@@ -2,6 +2,8 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+$paginaActual = basename($_SERVER['PHP_SELF']); // Detecta el archivo actual
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -21,14 +23,14 @@ if (session_status() === PHP_SESSION_NONE) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Navbar mejorado */
+        /* Navbar */
         .navbar-modern {
             background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             padding: 12px 0;
         }
 
-        /* Logo y brand */
+        /* Brand */
         .navbar-brand {
             display: flex;
             align-items: center;
@@ -36,24 +38,14 @@ if (session_status() === PHP_SESSION_NONE) {
             font-size: 1.5rem;
             font-weight: 700;
             color: #667eea !important;
-            transition: all 0.3s;
-        }
-
-        .navbar-brand:hover {
-            transform: translateY(-2px);
         }
 
         .logo-img {
             height: 40px;
             width: auto;
-            transition: all 0.3s;
         }
 
-        .navbar-brand:hover .logo-img {
-            transform: scale(1.05);
-        }
-
-        /* Botones de navegación */
+        /* Botones */
         .nav-btn {
             border-radius: 12px;
             padding: 10px 20px;
@@ -64,34 +56,30 @@ if (session_status() === PHP_SESSION_NONE) {
             display: flex;
             align-items: center;
             gap: 6px;
+            text-decoration: none;
         }
 
-        .nav-btn-inicio {
+        /* Botón morado (activo) */
+        .nav-btn-active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: white !important;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
         }
 
-        .nav-btn-inicio:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-
-        .nav-btn-proyectos,
-        .nav-btn-perfil {
+        /* Botón normal */
+        .nav-btn-default {
             background: transparent;
             color: #495057;
             border: 2px solid #e9ecef;
         }
 
-        .nav-btn-proyectos:hover,
-        .nav-btn-perfil:hover {
+        .nav-btn-default:hover {
             background: #f8f9fa;
             border-color: #667eea;
             color: #667eea;
         }
 
-        /* Avatar de usuario */
+        /* Avatar */
         .user-avatar {
             width: 42px;
             height: 42px;
@@ -104,33 +92,9 @@ if (session_status() === PHP_SESSION_NONE) {
             font-weight: 700;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s;
             border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
-        .user-avatar:hover {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-        }
-
-        .user-name {
-            font-size: 14px;
-            color: #495057;
-            font-weight: 600;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-btn {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-            
-            .user-name {
-                display: none;
-            }
-        }
     </style>
 </head>
 
@@ -139,72 +103,52 @@ if (session_status() === PHP_SESSION_NONE) {
 <nav class="navbar navbar-expand-lg navbar-modern">
     <div class="container-fluid px-4">
 
-        <!-- Logo y Brand -->
+        <!-- Logo y nombre -->
         <a class="navbar-brand" href="dashboard.php">
             <img src="../assets/img/logo_sharktask.png" class="logo-img" alt="SharkTask">
             <span>SharkTask</span>
         </a>
 
-        <!-- Navegación y Usuario -->
         <div class="d-flex align-items-center gap-2">
             <?php if (isset($_SESSION['usuario'])): ?>
 
-                <!-- Botón Inicio -->
-                <a href="dashboard.php" class="nav-btn nav-btn-inicio">
-                    <i class="bi bi-house-door-fill"></i>
-                    <span class="d-none d-md-inline">Inicio</span>
+                <!-- Inicio -->
+                <a href="dashboard.php" 
+                   class="nav-btn <?= $paginaActual == 'dashboard.php' ? 'nav-btn-active' : 'nav-btn-default' ?>">
+                    <i class="bi bi-house-door-fill"></i> <span>Inicio</span>
                 </a>
 
-                <!-- Botón Proyectos -->
-                <a href="proyectos.php" class="nav-btn nav-btn-proyectos">
-                    <i class="bi bi-folder2-open"></i>
-                    <span class="d-none d-md-inline">Proyectos</span>
+                <!-- Proyectos -->
+                <a href="proyectos.php" 
+                   class="nav-btn <?= $paginaActual == 'proyectos.php' ? 'nav-btn-active' : 'nav-btn-default' ?>">
+                    <i class="bi bi-folder2-open"></i> <span>Proyectos</span>
                 </a>
 
-                <!-- Botón Perfil -->
-                <a href="perfil.php" class="nav-btn nav-btn-perfil">
-                    <i class="bi bi-person"></i>
-                    <span class="d-none d-md-inline">Perfil</span>
+                <!-- Mis Tareas -->
+                <a href="mis_tareas.php" 
+                   class="nav-btn <?= $paginaActual == 'mis_tareas.php' ? 'nav-btn-active' : 'nav-btn-default' ?>">
+                    <i class="bi bi-list-check"></i> <span>Mis Tareas</span>
                 </a>
 
-                <!-- Avatar de usuario -->
+                <!-- Perfil -->
+                <a href="perfil.php" 
+                   class="nav-btn <?= $paginaActual == 'perfil.php' ? 'nav-btn-active' : 'nav-btn-default' ?>">
+                    <i class="bi bi-person"></i> <span>Perfil</span>
+                </a>
+
+                <!-- Avatar -->
                 <div class="dropdown">
-                    <div 
-                        class="user-avatar dropdown-toggle" 
-                        data-bs-toggle="dropdown" 
-                        aria-expanded="false"
-                        title="<?= htmlspecialchars($_SESSION['usuario']); ?>"
-                    >
-                        <?php 
-                            // Primera letra del usuario
-                            $iniciales = strtoupper(substr($_SESSION['usuario'], 0, 1));
-                            echo $iniciales;
-                        ?>
+                    <div class="user-avatar dropdown-toggle" data-bs-toggle="dropdown">
+                        <?= strtoupper(substr($_SESSION['usuario'], 0, 1)); ?>
                     </div>
-                    
-                    <!-- Dropdown menú -->
-                    <ul class="dropdown-menu dropdown-menu-end" style="border-radius: 12px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li class="px-3 py-2">
                             <small class="text-muted">Sesión iniciada como</small>
-                            <div class="fw-bold text-dark"><?= htmlspecialchars($_SESSION['usuario']); ?></div>
+                            <div class="fw-bold"><?= htmlspecialchars($_SESSION['usuario']); ?></div>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="perfil.php" style="border-radius: 8px;">
-                                <i class="bi bi-person"></i> Mi perfil
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="dashboard.php" style="border-radius: 8px;">
-                                <i class="bi bi-house"></i> Dashboard
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item text-danger" href="logout.php" style="border-radius: 8px;">
-                                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-                            </a>
-                        </li>
+                        <li><hr></li>
+                        <li><a class="dropdown-item" href="logout.php">Cerrar sesión</a></li>
                     </ul>
                 </div>
 
