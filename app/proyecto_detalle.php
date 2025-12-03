@@ -24,10 +24,11 @@ if (!$proyecto) {
     exit;
 }
 
-// Obtener tareas
-$queryTareas = $conexion->prepare("
-    SELECT t.*, u.nombre AS nombre_asignado
+// Obtener tareas DEL PROYECTO seleccionado
+$query_tareas = $conexion->prepare("
+    SELECT t.*, p.nombre as nombre_proyecto, p.id as id_proyecto, u.nombre AS nombre_asignado
     FROM tareas t
+    LEFT JOIN proyectos p ON t.id_proyecto = p.id
     LEFT JOIN usuarios u ON t.id_asignado = u.id
     WHERE t.id_proyecto = :id_proyecto
     ORDER BY 
@@ -38,9 +39,18 @@ $queryTareas = $conexion->prepare("
         END,
         t.fecha_limite ASC
 ");
-$queryTareas->bindParam(":id_proyecto", $id_proyecto);
-$queryTareas->execute();
-$tareas = $queryTareas->fetchAll(PDO::FETCH_ASSOC);
+
+$query_tareas->bindParam(":id_proyecto", $id_proyecto);
+$query_tareas->execute();
+$tareas = $query_tareas->fetchAll(PDO::FETCH_ASSOC);
+
+// Contar tareas por estado
+$total_tareas = count($tareas);
+$pendientes = count(array_filter($tareas, fn($t) => $t['estado'] == 'pendiente'));
+$en_proceso = count(array_filter($tareas, fn($t) => $t['estado'] == 'en_proceso'));
+$completadas = count(array_filter($tareas, fn($t) => $t['estado'] == 'completada'));
+
+
 
 // Obtener integrantes del proyecto
 $queryIntegrantes = $conexion->prepare("
@@ -71,6 +81,15 @@ include("../includes/header.php");
     }
 
     /* TABS */
+    .section-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
     .tab-btn {
         padding: 10px 24px;
         border-radius: 20px;
@@ -83,7 +102,7 @@ include("../includes/header.php");
     }
 
     .tab-btn.active {
-        background: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
@@ -96,28 +115,24 @@ include("../includes/header.php");
     .tab-btn.inactive:hover {
         background: #d8d8da;
     }
-
     /* BOTÓN NUEVA TAREA */
     .btn-nueva-tarea {
-        background: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        border: none;
-        padding: 12px 28px;
         border-radius: 12px;
+        padding: 12px 24px;
+        border: none;
         font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
         transition: all 0.3s;
         display: flex;
         align-items: center;
         gap: 8px;
+        cursor: pointer;
     }
 
     .btn-nueva-tarea:hover {
-        background: #5568d3;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        color: white;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 
     /* TARJETA DE TAREA */
@@ -376,32 +391,38 @@ include("../includes/header.php");
         color: #6c757d;
     }
 
-    /* CÍRCULO PROGRESO */
-    .progress-circle {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        background: conic-gradient(#667eea var(--p), #e6e6e6 0deg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
+   /* CÍRCULO PROGRESO */
+.progress-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        #667eea 0%,
+        #764ba2 var(--p),
+        #e6e6e6 var(--p)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
 
-    .progress-circle span {
-        position: absolute;
-        font-size: 26px;
-        font-weight: 700;
-        color: #4c4c4c;
-    }
+.progress-circle span {
+    position: absolute;
+    font-size: 26px;
+    font-weight: 700;
+    color: #4c4c4c;
+}
 
-    .progress-circle::before {
-        content: "";
-        width: 105px;
-        height: 105px;
-        background: white;
-        border-radius: 50%;
-    }
+.progress-circle::before {
+    content: "";
+    width: 105px;
+    height: 105px;
+    background: white;
+    border-radius: 50%;
+}
+
 </style>
 
 <div class="container mt-4">
@@ -494,18 +515,18 @@ include("../includes/header.php");
 </div>
 
     <!-- Tabs y botón Nueva Tarea -->
-    <div class="section-top my-4">
+<div class="section-top">
         <div>
-            <button class="tab-btn active" data-filter="todas">Todas</button>
-            <button class="tab-btn inactive" data-filter="pendiente">Pendientes</button>
-            <button class="tab-btn inactive" data-filter="en_proceso">En Proceso</button>
-            <button class="tab-btn inactive" data-filter="completada">Completadas</button>
+            <button class="tab-btn active" data-filter="todas">Todas (<?= $total_tareas ?>)</button>
+            <button class="tab-btn inactive" data-filter="pendiente">Pendientes (<?= $pendientes ?>)</button>
+            <button class="tab-btn inactive" data-filter="en_proceso">En Proceso (<?= $en_proceso ?>)</button>
+            <button class="tab-btn inactive" data-filter="completada">Completadas (<?= $completadas ?>)</button>
         </div>
-
         <button class="btn-nueva-tarea" data-bs-toggle="modal" data-bs-target="#modalCrearTarea">
-            <i class="bi bi-plus-circle-fill"></i> Nueva tarea
-        </button>
+    <i class="bi bi-plus-circle-fill"></i> Nueva tarea
+</button>
     </div>
+
 
     <!-- Lista de tareas -->
     <div id="listaTareas">

@@ -406,9 +406,6 @@ include("../includes/header.php");
             <i class="bi bi-list-check"></i>
             Mis Tareas
         </h1>
-        <p style="color: #6c757d; margin: 0; font-size: 15px;">
-            <?= $total_tareas ?> tareas · <?= $pendientes ?> pendientes · <?= $en_proceso ?> en proceso · <?= $completadas ?> completadas
-        </p>
     </div>
 
     <!-- Filtros -->
